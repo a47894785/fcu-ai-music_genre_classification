@@ -1,3 +1,4 @@
+from email.mime import audio
 from python_speech_features import mfcc
 import scipy.io.wavfile as wav
 import numpy as np
@@ -10,6 +11,7 @@ import operator
 import math
 import numpy as np
 from collections import defaultdict
+# from pydub import AudioSegment
 
 dataset = []
 
@@ -66,10 +68,12 @@ def nearestClass(neighbors):
 
 results = defaultdict(int)
 
-i = 1
-for folder in os.listdir("D:\\WorkSpace\\AI_PROJECT\\music_genre_classification\\Data\\genres_original"):
-    results[i] = folder
-    i += 1
+# i = 1
+# for folder in os.listdir("D:\\WorkSpace\\AI_PROJECT\\music_genre_classification\\Data\\genres_original"):
+#     results[i] = folder
+#     i += 1
+results = ["", "blues", "classical", "country", "disco", "hiphop", "jazz", "metal", "pop", "reggae", "rock"]
+
 
 (rate, sig) = wav.read("blues.00056.wav")
 mfcc_feat = mfcc(sig, rate, winlen=0.020, appendEnergy=False)
