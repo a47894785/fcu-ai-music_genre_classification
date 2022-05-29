@@ -1,19 +1,23 @@
 from email.mime import audio
+from wsgiref.validate import InputWrapper
+from isort import file
 from python_speech_features import mfcc
 import scipy.io.wavfile as wav
 import numpy as np
 from tempfile import TemporaryFile
+from pydub import AudioSegment
 import os
 import pickle
 import random
 import operator
+import filetype
 
 import math
 import numpy as np
 from collections import defaultdict
-# from pydub import AudioSegment
 
 dataset = []
+flag = False
 
 
 def loadDataset(filename):
@@ -66,16 +70,36 @@ def nearestClass(neighbors):
     return sorter[0][0]
 
 
-results = defaultdict(int)
+def convertToMp3(fileUrl):
+    dst = "convertedMp3.wav"
+    audSeg = AudioSegment.from_mp3(fileUrl)
+    audSeg.export(dst, format="wav")
+    return dst
 
-# i = 1
-# for folder in os.listdir("D:\\WorkSpace\\AI_PROJECT\\music_genre_classification\\Data\\genres_original"):
-#     results[i] = folder
-#     i += 1
+
+def checkType(fileName):
+    global flag
+    audType = filetype.guess(fileName)
+
+    if (audType != None):
+        if (audType.mime == "audio/mpeg"):
+            inputFile = convertToMp3(fileUrl)
+            flag = True
+        elif (audType.mime == "audio/x-wav"):
+            inputFile = fileUrl
+            flag = False
+
+    return inputFile
+
+
 results = ["", "blues", "classical", "country", "disco", "hiphop", "jazz", "metal", "pop", "reggae", "rock"]
 
 
-(rate, sig) = wav.read("blues.00056.wav")
+fileUrl = "music1.mp3"
+inputFile = checkType(fileUrl)
+
+
+(rate, sig) = wav.read(inputFile)
 mfcc_feat = mfcc(sig, rate, winlen=0.020, appendEnergy=False)
 covariance = np.cov(np.matrix.transpose(mfcc_feat))
 mean_matrix = mfcc_feat.mean(0)
@@ -84,3 +108,6 @@ feature = (mean_matrix, covariance, 0)
 pred = nearestClass(getNeighbors(dataset, feature, 5))
 
 print(results[pred])
+
+if (flag):
+    os.remove(inputFile)
